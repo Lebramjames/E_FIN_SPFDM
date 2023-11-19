@@ -10,73 +10,30 @@ class Plotter:
         plt.savefig(
             fr'D:\studie\main_studie\files\stochastics_finance\E_FIN_SPFDM-1\assignment 1\plots\{name}.png')
 
-    def plot_bumps(self, Scenarios, bumps, maturities):
-        plt.figure(figsize=(12, 8))
-
-        # Plot a line for each maturity
-        for maturity in maturities:
-            rates = [Scenarios['scenario2'][maturity]
-                     [f'{bump*10000}bp'] for bump in bumps]
-            plt.plot(bumps * 10000, rates, marker='o',
-                     label=f'Maturity {maturity} years')
-
-        plt.title('Swap Rates Sensitivity to Zero Curve Bumps')
-        plt.xlabel('Bump in Basis Points')
-        plt.ylabel('Swap Rate')
-        plt.legend()
-        plt.grid(True)
-        self.save_fig('part1_2_bumps')
-
-        plt.show()
-
-    def plot_swap_rates(self, Scenarios):
+    def plot_amortization_schedules(self, Scenarios, maturities):
+        """
+        plot scaneraio 2: amortizaiton
+        """
         plt.figure(figsize=(10, 6))
+        for amortization, rates in Scenarios['scenario2'].items():
+            if amortization == 100:
+                plt.plot(maturities, rates, label=f'No Amortization')
+            else:
+                plt.plot(maturities, rates,
+                         label=f'Amortizated till {amortization}')
 
-        for maturity in Scenarios['scenario2']['part2']:
-
-            years_to_maturity = maturity
-            swap_rates = [rate for rate in Scenarios['scenario2']['part2']
-                          [maturity]['amortization']]
-
-            plt.plot([years_to_maturity] * len(swap_rates),
-                     swap_rates, 'o-', label=f'Maturity {maturity} years')
-
-        plt.title('Swap Rates vs Years to Maturity')
-        plt.xlabel('Years to Maturity')
-        plt.ylabel('Swap Rate')
-        plt.legend()
+        plt.title('Swap Rates for Different Amortization Schedules')
+        plt.xlabel('Maturity (Years)')
+        plt.ylabel('Swap Rate (%)')
         plt.grid(True)
-        self.save_fig('part1_2_swap_amortization')
+        plt.legend()
+        plt.savefig('plots/amortizing_schedule.png')
         plt.show()
 
-    def plot_amortization_schedules(self, Scenarios):
-        plt.figure(figsize=(10, 6))
-
-        # Create a marker for each amortization schedule in the legend
-        markers = ['o', 's', '^']
-        labels = ['Amortization Full',
-                  'Amortization Half', 'Amortization Zero']
-
-        # Plot each maturity
-        for idx, (maturity, data) in enumerate(Scenarios['scenario2']['part2'].items()):
-            # Extract amortization schedules for each maturity
-            amortization_schedules = data['amortization_schedule']
-            swap_rates = data['amortization']
-
-            # Plot amortization schedules
-            for i, amortization in enumerate(amortization_schedules):
-                plt.plot(maturity, swap_rates[i], markers[i],
-                         label=labels[i] if idx == 0 else "", color='C'+str(idx))
-
-        plt.title('Amortization Schedules vs Years to Maturity')
-        plt.xlabel('Years to Maturity')
-        plt.ylabel('Swap Rate')
-        plt.legend()
-        plt.grid(True)
-        self.save_fig('part1_2_amortization')
-        plt.show()
-
-    def plot_bumped_swap_rates(self, Scenarios, maturities):
+    def plot_bumped_swap_rates(self, Scenarios, maturities, fixed_rate):
+        """
+        used for scenario 3
+        """
         plt.figure(figsize=(12, 8))
 
         # Loop over each bump scenario and plot the swap rates
@@ -86,16 +43,20 @@ class Plotter:
             plt.plot(maturity_years, swap_rates,
                      marker='o', label=f'Bump {bump_label}')
 
-        plt.title('Swap Rates vs Maturities for Different Bumps')
+        plt.title(
+            f'Swap Rates vs Maturities for Different Bumps (fixed rate: {fixed_rate*100}%, notional amount 100)')
         plt.xlabel('Years to Maturity')
-        plt.ylabel('Swap Rate')
+        plt.ylabel('Swap Value')
+
         plt.legend()
         plt.grid(True)
         self.save_fig('part1_3_bumpedswap')
         plt.show()
 
     def plot_zerorates(self, zero_curve, european_zerorates, zero_rates_rf):
-
+        """
+        used for bootstrap method
+        """
         plt.plot(zero_curve.index,
                  zero_curve['Zero Rates'], label='Bootstrapped Zero Curve')
         # plt.plot(bond_maturities, yields, marker='x', linestyle='--', label='Yield Curve')
@@ -110,4 +71,30 @@ class Plotter:
         plt.legend()
         plt.grid(True)
         self.save_fig('part1_1_bootstrappedrates')
+        plt.show()
+
+    def plot_scenario2_bumps(self, Scenarios, maturities):
+        fig, axs = plt.subplots(3, 3, figsize=(20, 16))
+        fig.suptitle(
+            'Swap Rates for Various Basis Points and Payment Frequencies')
+
+        # Iterate over each subplot
+        for i, (bp, data) in enumerate(Scenarios['scenario2'].items()):
+            row, col = divmod(i, 3)
+            ax = axs[row, col]
+            for freq, rates in data.items():
+                ax.plot(maturities, rates, label=f'Freq: {freq} years')
+            ax.set_title(f'Basis Points: {bp}')
+            ax.set_xlabel('Maturity (Years)')
+            ax.set_ylabel('Swap Rate (%)')
+            ax.grid(True)
+            ax.legend()
+            # Setting the same y-axis range for all plots
+            ax.set_ylim(2.5, 3.5)
+
+        # Adjust layout
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.95)
+
+        plt.savefig('plots/swaprates_bumps2_.png')
         plt.show()
