@@ -15,8 +15,10 @@ class Plotter:
 
         # Plot a line for each maturity
         for maturity in maturities:
-            rates = [Scenarios['scenario2'][maturity][f'{bump*10000}bp'] for bump in bumps]
-            plt.plot(bumps * 10000, rates, marker='o', label=f'Maturity {maturity} years')
+            rates = [Scenarios['scenario2'][maturity]
+                     [f'{bump*10000}bp'] for bump in bumps]
+            plt.plot(bumps * 10000, rates, marker='o',
+                     label=f'Maturity {maturity} years')
 
         plt.title('Swap Rates Sensitivity to Zero Curve Bumps')
         plt.xlabel('Bump in Basis Points')
@@ -92,12 +94,15 @@ class Plotter:
         self.save_fig('part1_3_bumpedswap')
         plt.show()
 
+    def plot_zerorates(self, zero_curve, european_zerorates, zero_rates_rf):
 
-    def plot_zerorates(self, zero_curve, european_zerorates):
-        
-        plt.plot(zero_curve.index, zero_curve['Zero Rates'], marker='o', label='Bootstrapped Zero Curve')
+        plt.plot(zero_curve.index,
+                 zero_curve['Zero Rates'], label='Bootstrapped Zero Curve')
         # plt.plot(bond_maturities, yields, marker='x', linestyle='--', label='Yield Curve')
-        plt.plot(european_zerorates.index, european_zerorates, marker='s', linestyle='-', label='European Zero Rates')
+        plt.plot(european_zerorates.index, european_zerorates,
+                 linestyle='-', label='European Zero Rates')
+        plt.plot(zero_rates_rf.index, zero_rates_rf, linestyle='-',
+                 label='Zero Rates Discounted (Risk Free)')
 
         plt.title('Zero Curve and Yield Curve Comparison')
         plt.xlabel('Years to Maturity')
