@@ -98,3 +98,24 @@ class Plotter:
 
         plt.savefig('plots/swaprates_bumps2_.png')
         plt.show()
+
+
+    def plot_onecurvetwocurve(self, Scenarios, maturities):
+        """
+        plot scaneraio 2: amortizaiton
+        """
+        plt.figure(figsize=(10, 6))
+        for amortization, rates in Scenarios['scenario2'].items():
+            if amortization == 100:
+                plt.plot(maturities, rates, label=f'No Amortization')
+            else:
+                plt.plot(maturities, rates,
+                         label=f'Amortizated till {amortization}')
+
+        plt.title('Swap Rates for Different Amortization Schedules')
+        plt.xlabel('Maturity (Years)')
+        plt.ylabel('Swap Rate (%)')
+        plt.grid(True)
+        plt.legend()
+        plt.savefig('plots/amortizing_schedule.png')
+        plt.show()
