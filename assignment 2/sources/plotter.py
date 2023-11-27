@@ -20,7 +20,7 @@ class Plotter:
         axes[0].set_title('Asset Prices (S and F)')
 
         # Plot Volatility
-        sns.lineplot(data=pd.DataFrame({'v': v[:, 0], 'sigma': sigma[:, 0]}), ax=axes[1])
+        sns.lineplot(data=pd.DataFrame({'Stdev Heston': v[:, 0], 'Stdev SABR': sigma[:, 0]}), ax=axes[1])
         axes[1].set_xlabel('Time Steps')
         axes[1].set_ylabel('Volatility')
         axes[1].set_title('Volatility (v and sigma)')
@@ -89,3 +89,23 @@ class Plotter:
         plt.tight_layout()
         plt.savefig('plots/histPlots.png')
         plt.show()  
+
+
+    def plot_bs_SABR_volatility(self, option_prices_sabr, option_prices_bs, moneyness_levels):
+
+        # Plot option prices based on implied volatility
+        plt.figure(figsize=(10, 6))
+        for option_type in ['Call', 'Put']:
+            for moneyness in moneyness_levels:
+                option_label = f'{option_type} {moneyness}'
+                mc_prices = [option_prices_sabr[f'{option_type} {moneyness}'] for moneyness in moneyness_levels]
+                bs_prices = [option_prices_bs[f'{option_type} {moneyness}'] for moneyness in moneyness_levels]
+                plt.plot(moneyness_levels, mc_prices, label=f'MC {option_label}')
+                plt.plot(moneyness_levels, bs_prices, label=f'BS {option_label}', linestyle='--')
+
+        plt.xlabel('Moneyness')
+        plt.ylabel('Option Price')
+        plt.title('Option Prices Comparison (MC vs. BS) based on Implied Volatility')
+        plt.legend()
+        plt.grid(True)
+        plt.show()

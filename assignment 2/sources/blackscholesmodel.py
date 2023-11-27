@@ -8,7 +8,7 @@ class BlackScholes:
     def __init__(self) -> None:
         pass
 
-    def calc_blackscholes(S0, K, sigma, T, r):
+    def calc_blackscholes(self, S0, K, sigma, T, r, option_type = 'call'):
         """
         Calculate European call price using the Black scholes formula
 
@@ -29,6 +29,10 @@ class BlackScholes:
         d2 = d1 - sigma * np.sqrt(T)
 
         # Call price:
-        C = S0 * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
-        print(f'Black-Scholes call option valuation: {np.round(C, 2)}')
-        return C
+        if option_type == 'call':
+            C = S0 * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
+            # print(f'Black-Scholes call option valuation: {np.round(C, 2)}')
+            return C
+        elif option_type == 'put':
+            P = K * np.exp(-r * T) * norm.cdf(-d2) - S0 * norm.cdf(-d1)
+            return P

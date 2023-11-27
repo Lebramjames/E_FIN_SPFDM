@@ -1,10 +1,11 @@
 import numpy as np
 
+
 class SABR_model_simulation:
     def __init__(self) -> None:
         pass
 
-    def create_sabr_model_asset(self, F, sigma, beta, dW1):
+    def create_sabr_model_asset(self, F, sigma, beta, dW1, delta_t):
         """
         Simulates the asset price path using the SABR model.
 
@@ -17,23 +18,30 @@ class SABR_model_simulation:
         Returns:
         - S: Simulated asset price path.
         """
-        return F + (sigma * F ** beta) * dW1
+        return F + (sigma * F ** beta) * dW1 * np.sqrt(delta_t)
+        # return F * np.exp(sigma * dW1 * np.sqrt(delta_t) - 0.5 * sigma**2 * delta_t)
 
-    def create_sabr_model_sigma(self, sigma, alpha, dW2):
+    def create_sabr_model_sigma(self, sigma, alpha, beta, dW2, delta_t):
         """
-        Simulates the volatility path using the SABR model.
+        Simulates the volatility path using the SABR model with the exponential update formula provided.
 
         Parameters:
         - sigma: Current volatility.
-        - alpha: SABR model parameter alpha.
+        - nu: Volatility of volatility (volvol).
         - dW2: Brownian motion increment for volatility.
+        - delta_t: Time step.
 
         Returns:
         - Updated volatility.
         """
-        return sigma + (alpha * sigma * dW2)
-    
-    def sabr_model_sim(self, F0, sigma0, rho, beta, alpha, T, N, M):
+        drift_term = -0.5 * alpha**2 * delta_t
+        diffusion_term = alpha * dW2 * np.sqrt(delta_t)
+        return sigma * np.exp(drift_term + diffusion_term)
+
+        # volvol = alpha * sigma**beta
+        # return sigma + volvol * sigma * dW2 * np.sqrt(delta_t)
+
+    def sabr_model_sim(self, F0, rho, beta, alpha, T, N, M):
         """
         Simulates the SABR model for asset prices and volatilities.
 
@@ -59,11 +67,14 @@ class SABR_model_simulation:
                         [rho, 1]])
 
         F = np.full(shape=(N + 1, M), fill_value=F0)
-        sigma = np.full(shape=(N + 1, M), fill_value=sigma0)
+        sigma = np.full(shape=(N + 1, M), fill_value=alpha)
         Z = np.random.multivariate_normal(mu, cov, (N, M)) * np.sqrt(delta_t)
 
         for i in range(1, N + 1):
-            F[i] = self.create_sabr_model_asset(F[i - 1], sigma[i - 1], beta, Z[i - 1, :, 0])
-            sigma[i] = self.create_sabr_model_sigma(sigma[i - 1], alpha, Z[i - 1, :, 1])
+            F[i] = self.create_sabr_model_asset(
+                F[i - 1], sigma[i - 1], beta, Z[i - 1, :, 0], delta_t)
+            # sigma[i] = self.create_sabr_model_sigma(sigma[i - 1], alpha, Z[i - 1, :, 1], delta_t)
+            sigma[i] = self.create_sabr_model_sigma(
+                sigma[i - 1], alpha, beta, Z[i - 1, :, 1], delta_t)
 
         return F, sigma
