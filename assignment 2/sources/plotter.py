@@ -9,6 +9,112 @@ class Plotter:
     def __init__(self) -> None:
         pass
     
+
+    # %% Question 1:
+
+    def plot_simpayoffs(self, payoffs, mean_payoff):
+        # Create a Seaborn histogram
+        plt.figure(figsize=(10, 6))
+        sns.histplot(payoffs, bins=30, kde=True, color='blue')
+        plt.xlabel("Payoff")
+        plt.ylabel("Frequency")
+        plt.title("Distribution of Option Payoffs")
+        plt.axvline(x=mean_payoff, color='red', linestyle='--', label=f'Mean Payoff = {mean_payoff:.2f}')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+    def plot_diffcorrelation_payoffs(self, payoffs, correlations, spreads):
+        plt.figure(figsize=(10, 6))
+        
+        # Calculate lower and upper bounds for the spread range
+        lower_bounds = np.array(payoffs) - np.array(spreads)
+        upper_bounds = np.array(payoffs) + np.array(spreads)
+        
+        # Clip the lower bounds to 0
+        lower_bounds = np.maximum(lower_bounds, 0)
+        
+        # Plot option payoffs
+        sns.lineplot(x=correlations, y=payoffs, label="Option Payoffs", color='b')
+        
+        # Plot the spread range around the mean, considering the lower bounds
+        plt.fill_between(correlations, lower_bounds, upper_bounds, color='r', alpha=0.3, label="Spread Range")
+        
+        plt.xlabel("Correlation")
+        plt.ylabel("Option Payoff")
+        plt.title("Option Payoff vs. Correlation with Spread Range (Standard Deviation)")
+        plt.grid(True)
+        plt.legend()
+        plt.show()
+
+
+
+    def plot_histogramfutureprices(self, future_prices, mean_future):
+        plt.figure(figsize=(10, 6))
+        sns.histplot(future_prices, bins=30, kde=True, color='blue')
+        plt.axvline(x=mean_future, color='red', linestyle='--', label=f'Mean Future = {mean_future:.2f}')
+        plt.xlabel("Future Prices")
+        plt.ylabel("Frequency")
+        plt.title("Distribution of Future Prices")
+        plt.grid(True)
+        plt.show()
+
+
+
+
+    def plot_stocks(self,stocks, n_sim):
+        # Plotting
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+        for sim in range(n_sim):
+            # Stock 1 (S1) for each simulation
+            axes[0].plot(stocks[0, :, sim], label=f'Sim {sim+1}')
+            axes[0].set_title('Stock 1 (S1) Price Paths')
+            axes[0].set_xlabel('Time Steps')
+            axes[0].set_ylabel('Stock Price')
+
+            # Stock 2 (S2) for each simulation
+            axes[1].plot(stocks[1, :, sim], label=f'Sim {sim+1}')
+            axes[1].set_title('Stock 2 (S2) Price Paths')
+            axes[1].set_xlabel('Time Steps')
+            axes[1].set_ylabel('Stock Price')
+
+        # Adding legends to the plots
+        # axes[0].legend()
+        # axes[1].legend()
+
+        plt.tight_layout()
+        axes[0].grid(True)
+        axes[1].grid(True)
+        plt.show()
+
+    def plot_futures(self, futures, n_sim):
+        # Assuming futures is a list of lists (each inner list is a path of prices for one simulation)
+        fig, ax = plt.subplots(figsize=(12, 5))
+
+        for sim in range(n_sim):
+            # Plot each simulation
+            ax.plot(futures[sim], label=f'Sim {sim+1}')
+
+        ax.set_title('Future Price Paths')
+        ax.set_xlabel('Time Steps')
+        ax.set_ylabel('Future Price')
+        
+        # Uncomment below if you want to show legend
+        # ax.legend()
+
+        ax.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+
+
+
+
+
+
+
+    # %%  Question 2:
     def plot_2curves(self, S, F, sigma, v):
         # Create subplots using Seaborn
         fig, axes = plt.subplots(1, 2, figsize=(12, 4))
